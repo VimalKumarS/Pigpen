@@ -10,18 +10,18 @@ long long RotKeyLen1 =0;
 char pair1[]="UW";
 char pair2[]="LA";
 char pair3[]="ET";
-char Cipher[]="UHLEQFVTCPPWMPDOREERRIODIWLTUAREREHTAAFBAENO"
+char Cipher[]= "UHLEQFVTCPPWMPDOREERRIODIWLTUAREREHTAAFBAENO"
 	"FERAEYHYOZIPVCYOSFKOYTESGHQPOTQNMDAPSTMGYIBO"
 	"QRPFESTTLPAAFEEUHTSBFTNKTSVVSUIWTOGYSTEFMHFRO"
-	"WOFZHERERPEUHTSBFTNKTSLHTUOTDLHTLPHSYQTGGVT";
-char originalAlphabet[] ="ABCDEFGHIJKLMNOPQRSTUVWXYZ";//"BCDFGHIJKMNOPQRSVXYZ";//ANBOCPDQERFSGTHUIVJWKXLYMZ
+	"WOFZHERERPEUHTSBFTNKTSLHTUOTDLHTLPHSYQTGGVT";//"VBECOBE";
+char originalAlphabet[] ="BCDFGHIJKMNOPQRSVXYZUWLAET";//"ABCDEFGHIJKLMNOPQRSTUVWXYZ";//"BCDFGHIJKMNOPQRSVXYZ";//ANBOCPDQERFSGTHUIVJWKXLYMZ
 char keyInit[]="0123"; // to generate the random key
 long dscore[676];  // score based on number of diagram
 char *pattern[676];
 //char Rotat[6][5]={"AGIC","BDHF","JPRL","KMQO","STVU","WXZY"};  // taken as anti clock wise
 //char Rotat1[2]={'E','N'};
 
-int key[]={0,0,0,0,0,0}; //,0  add one more 0 for key length of 7
+int key[]={1,2,1,0,0,3,3};//{0,0,0,0,0,0}; //,0  add one more 0 for key length of 7  {1,2,1,0,0,3,3};
 char Rotat[6][5]={"????","????","????","????","????","????"};//{"UW??","LA??","ET??","????","????","????"};  // taken as anti clock wise   move backword
 char Rotat1[2]={'?','?'};
 long long Total=0;
@@ -32,7 +32,7 @@ int scoreSet=0;  // 1 initial score is set and 0 not set
 char *originalMessage;	
 
 
-char* DecyptPigPen(char (*Rotat)[5],char (*Rotat1),int key[5], char* CipherText,int keyLen)
+char DecyptPigPen(char (*Rotat)[5],char (*Rotat1),int key[5], char* CipherText,int keyLen,char msg[177])
 {
 	char oMessage[177];
 	int i=0,k=0,pos=0,ky,newPos,flag;
@@ -98,7 +98,13 @@ char* DecyptPigPen(char (*Rotat)[5],char (*Rotat1),int key[5], char* CipherText,
 
 	}
 	oMessage[msgLength] = '\0';
-	return oMessage;
+	for ( i=0; i<177; i++ )
+	{
+
+		msg[i]=oMessage[i];
+		//free(dMessage);
+	}
+
 	//oMessage=originalMessage1;
 
 	//free(originalMessage1);
@@ -334,7 +340,7 @@ void permuteWithRepRecur (char *str, char* data, char (**KeyPer),int last, int i
 			strcpy(KeyPer[RotKeyLen],data);  //  printf("%d%s\n", i,a);
 			RotKeyLen++;
 			KeyPer[RotKeyLen] = (char *) malloc(sizeof(char)*5); 
-			KeyPer[RotKeyLen][5]='\00000';
+			KeyPer[RotKeyLen][5]='\0';
 			//printf("%s\n", data);
 		}
 		else // Recur for higher indexes
@@ -433,7 +439,8 @@ void verifyThePermutation(char *a,char **KeyPer)
 	//char Rotat[6][5];  // taken as anti clock wise
 	//char Rotat1[2] ; //={'E','N'};9
 	double ParentScore;
-	char *dMessage;	
+	//char *dMessage;	
+	char dMessage[177];
 	char tempMsg[177];
 	flag=fillValidateRotatKey(Rotat,a); // validating that pair are in correct group
 
@@ -466,7 +473,7 @@ void verifyThePermutation(char *a,char **KeyPer)
 
 			// Decrypt using standard approach
 
-			dMessage=DecyptPigPen(Rotat,Rotat1,key,Cipher,keyLen); // move back in the key group to get the correct key
+			DecyptPigPen(Rotat,Rotat1,key,Cipher,keyLen,dMessage); // move back in the key group to get the correct key
 
 			for ( i=0; i<177; i++ )
 			{
@@ -483,6 +490,20 @@ void verifyThePermutation(char *a,char **KeyPer)
 				scoreSet=1; // initial round of score is set
 				free(originalMessage);
 				setOriginalMessage(tempMsg);
+
+				printf("\n Key : %d%d%d%d%d%d --- Score : %lf \n",key[0],key[1],key[2],key[3],key[4],key[5],score);
+				printf("\n Rotation Key %s - %s - %s - %s - %s - %s - %c - %c\n",Rotat[0],Rotat[1],Rotat[2],Rotat[3],Rotat[4],Rotat[5],Rotat1[0],Rotat1[1]);
+				printf(" Original message %s \n" , originalMessage);
+				printf("--------------------------- \n");		
+				//text to file
+				fptxt=fopen("PigPen.txt","a+");
+				fprintf( fptxt, "%d%d%d%d%d%d  Score : %lf \n", key[0],key[1],key[2],key[3],key[4],key[5],score);
+				fprintf(fptxt,"%s%s%s%s%s%s",Rotat[0],Rotat[1],Rotat[2],Rotat[3],Rotat[4],Rotat[5]);
+				fprintf(fptxt,"%c%c \n",Rotat1[0],Rotat1[1]);
+				fprintf(fptxt," Original message %s \n" , originalMessage);
+				fprintf(fptxt,"\n--------------------------- %c",'\n');
+				fflush(stdin);
+				fclose(fptxt);
 			}
 			if(score<ParentScore)
 			{
@@ -492,22 +513,23 @@ void verifyThePermutation(char *a,char **KeyPer)
 				//originalMessage=dMessage;
 				//free(dMessage);
 
+
+				//free(dMessage);
+				//originalMessage=NULL;
+				printf("\n Key : %d%d%d%d%d%d --- Score : %lf \n",key[0],key[1],key[2],key[3],key[4],key[5],score);
+				printf("\n Rotation Key %s - %s - %s - %s - %s - %s - %c - %c\n",Rotat[0],Rotat[1],Rotat[2],Rotat[3],Rotat[4],Rotat[5],Rotat1[0],Rotat1[1]);
+				printf(" Original message %s \n" , originalMessage);
+				printf("--------------------------- \n");		
+				//text to file
+				fptxt=fopen("PigPen.txt","a+");
+				fprintf( fptxt, "%d%d%d%d%d%d  Score : %lf \n", key[0],key[1],key[2],key[3],key[4],key[5],score);
+				fprintf(fptxt,"%s%s%s%s%s%s",Rotat[0],Rotat[1],Rotat[2],Rotat[3],Rotat[4],Rotat[5]);
+				fprintf(fptxt,"%c%c \n",Rotat1[0],Rotat1[1]);
+				fprintf(fptxt," Original message %s \n" , originalMessage);
+				fprintf(fptxt,"\n--------------------------- %c",'\n');
+				fflush(stdin);
+				fclose(fptxt);
 			}
-			//free(dMessage);
-			//originalMessage=NULL;
-			printf("\n Key : %d%d%d%d%d%d --- Score : %lf \n",key[0],key[1],key[2],key[3],key[4],key[5],score);
-			printf("\n Rotation Key %s - %s - %s - %s - %s - %s - %s - %s\n",Rotat[0],Rotat[1],Rotat[2],Rotat[3],Rotat[4],Rotat[5],Rotat1[0],Rotat1[1]);
-			printf(" Original message %s \n" , originalMessage);
-			printf("--------------------------- \n");		
-			//text to file
-			fptxt=fopen("PigPen.txt","a+");
-			fprintf( fptxt, "%d%d%d%d%d%d  Score : %lf \n", key[0],key[1],key[2],key[3],key[4],key[5],score);
-			fprintf(fptxt,"%s%s%s%s%s%s",Rotat[0],Rotat[1],Rotat[2],Rotat[3],Rotat[4],Rotat[5]);
-			fprintf(fptxt,"%c%c \n",Rotat1[0],Rotat1[1]);
-			fprintf(fptxt," Original message %s \n" , originalMessage);
-			fprintf(fptxt,"\n--------------------------- %c",'\n');
-			fflush(stdin);
-			fclose(fptxt);
 		}
 
 
@@ -552,7 +574,7 @@ int main()
 
 
 	int i=0,len;
-	//char CipherText[] = "VBECOBE";
+	//char CipherText1[] = "VBECOBE";
 	//char PlainText[] = "THECODE";
 	//int key[]={1,2,1,0,0,3,3};
 	//int keyLen = sizeof(key)/ sizeof(key[0]);
@@ -563,8 +585,8 @@ int main()
 	//char *originalMessage;	
 	FILE *fp=fopen( "english_bigrams.txt", "r" );
 	// Decrypt using standard approach
-	//originalMessage = (char *)malloc((strlen(CipherText))+1) ;
-	//DecyptPigPen(Rotat,Rotat1,key,CipherText,originalMessage,keyLen);
+	//originalMessage = (char *)malloc((strlen(CipherText1))+1) ;
+	//originalMessage=DecyptPigPen(Rotat,Rotat1,key,CipherText1,7);
 	//To Encrypt
 	//originalMessage = (char *)malloc((strlen(PlainText))+1) ;
 	//EncyptPigPen(Rotat,Rotat1,key,PlainText,originalMessage,keyLen);
@@ -618,21 +640,3 @@ int main()
 	getch();
 }
 
-/*
-Generate the first key pair
-AL -ET - UW - - 
-keeping above alphabet in order
-starting with key 111 ---
-
-filling the rest of arrangement randomly 
-
-then applying hillclimbing approach, using Trigram mapping calculating the score.
-
-Taking first the 
-U W
-H
-L A
-E T
-
-
-*/
