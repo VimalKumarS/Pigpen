@@ -24,8 +24,8 @@ char *pattern[trigramCount];
 //char Rotat1[2]={'E','N'};
 
 int key[]={0,0,0,0,0,0,0};//{0,0,0,0,0,0}; //,0  add one more 0 for key length of 7  {1,2,1,0,0,3,3};
-char Rotat[6][5]={"????","????","????","????","????","????"};//{"UW??","LA??","ET??","????","????","????"};  // taken as anti clock wise   move backword
-char Rotat1[2]={'?','?'};
+char RotatPattern[6][5]={"????","????","????","????","????","????"};//{"UW??","LA??","ET??","????","????","????"};  // taken as anti clock wise   move backword
+char RotatPattern_Constant[2]={'?','?'};
 long long Total=0; 
 char line[16];
 int keyLen =7; // checking for key lenght of 7 /6
@@ -88,7 +88,7 @@ void modifyKey(char *newKey,char *oldKey){
 }
 /* endregion */
 
-char DecyptPigPen(char (*Rotat)[5],char (*Rotat1),int key[5], char* CipherText,int keyLen,char msg[177])
+char DecyptPigPen(char (*RotatPattern)[5],char (*RotatPattern_Constant),int key[5], char* CipherText,int keyLen,char msg[177])
 {
 	char oMessage[177];
 	int i=0,k=0,pos=0,ky,newPos,flag;
@@ -106,26 +106,26 @@ char DecyptPigPen(char (*Rotat)[5],char (*Rotat1),int key[5], char* CipherText,i
 		for(k=0; k<6;k++) // for 6 rotat key - combination
 		{
 
-			m = strchr(Rotat[k], ch);
+			m = strchr(RotatPattern[k], ch);
 			if(m != NULL)
 			{
 				flag=1;
-				pos=m-Rotat[k]; // get the position of the character
+				pos=m-RotatPattern[k]; // get the position of the character
 				ky=key[i % keyLen];
 				newPos=pos-ky;
 				if(newPos==0)
 				{
-					oMessage[i]=Rotat[k][newPos];
+					oMessage[i]=RotatPattern[k][newPos];
 				}
 				else
 				{
 					if(newPos>0)
 					{
-						oMessage[i]=Rotat[k][newPos];
+						oMessage[i]=RotatPattern[k][newPos];
 					}
 					else
 					{
-						oMessage[i]=Rotat[k][4+newPos];
+						oMessage[i]=RotatPattern[k][4+newPos];
 					}
 				}
 				//printf("char %c" ,*m);
@@ -137,7 +137,7 @@ char DecyptPigPen(char (*Rotat)[5],char (*Rotat1),int key[5], char* CipherText,i
 		{
 			for(k=0; k<2;k++)
 			{
-				if(ch==Rotat1[k])
+				if(ch==RotatPattern_Constant[k])
 					oMessage[i]=ch;
 
 			
@@ -159,18 +159,18 @@ char DecyptPigPen(char (*Rotat)[5],char (*Rotat1),int key[5], char* CipherText,i
 }
 
 //Validate the Rotation key pair contain - requried pair
-int CheckForKey(char (*Rotat)[5],char * hpair)
+int CheckForKey(char (*RotatPattern)[5],char * hpair)
 {
 	int k,flag=0;
 	char *m;
 	char ch=hpair[0];
 	for(k=0; k<6;k++) // for 6 rotat key - combination
 	{
-		m = strchr(Rotat[k], ch);
+		m = strchr(RotatPattern[k], ch);
 		if(m != NULL)
 		{
 			ch=hpair[1];
-			m = strchr(Rotat[k], ch);
+			m = strchr(RotatPattern[k], ch);
 			if(m!=NULL)
 			{
 				return 1;
@@ -182,7 +182,7 @@ int CheckForKey(char (*Rotat)[5],char * hpair)
 }
 
 //Fill in the rotation key based on the permutation of the alphabet
-int fillValidateRotatKey(char (*Rotat)[5],char *a)
+int fillValidateRotatKey(char (*RotatPattern)[5],char *a)
 {
 	//set up the key
 	int i,k,t=0;
@@ -191,19 +191,19 @@ int fillValidateRotatKey(char (*Rotat)[5],char *a)
 	{
 		for(k=0;k<4;k++)
 		{
-			Rotat[i][k]=a[t];
+			RotatPattern[i][k]=a[t];
 			t++;
 		}
-		Rotat[i][k]='\0';
+		RotatPattern[i][k]='\0';
 	}
 
 
 	//Now match the key group if that map our criteria
-	if(CheckForKey(Rotat,pair1)==1 )
+	if(CheckForKey(RotatPattern,pair1)==1 )
 	{
-		if( CheckForKey(Rotat,pair2)==1  )
+		if( CheckForKey(RotatPattern,pair2)==1  )
 		{
-			if(CheckForKey(Rotat,pair3)==1)
+			if(CheckForKey(RotatPattern,pair3)==1)
 			{
 				return 1;
 			}
@@ -227,7 +227,7 @@ int fillValidateRotatKey(char (*Rotat)[5],char *a)
 }
 
 // Check for particular rotation consist of requried pair
-int identifyDefaultKey(char (*Rotat)[5],char * hpair)
+int identifyDefaultKey(char (*RotatPattern)[5],char * hpair)
 {
 	int i,k,key=0;
 	int flag=0;
@@ -236,11 +236,11 @@ int identifyDefaultKey(char (*Rotat)[5],char * hpair)
 	char ch=hpair[0];
 	for(k=0;k<6;k++)
 	{
-		m = strchr(Rotat[k], ch);  // positon of u
+		m = strchr(RotatPattern[k], ch);  // positon of u
 		if(m != NULL)
 		{
 			ch=hpair[1];
-			p = strchr(Rotat[k], ch);  // position of w
+			p = strchr(RotatPattern[k], ch);  // position of w
 			if(p>m)
 			{
 				key=p-m;
@@ -406,18 +406,18 @@ void verifyThePermutation7(char *a,char **KeyPer)
 	
 	do
 	{
-		flag=fillValidateRotatKey(Rotat,testKey); // validating that pair are in correct group
+		flag=fillValidateRotatKey(RotatPattern,testKey); // validating that pair are in correct group
 
-		Rotat1[0]=testKey[24]; //18
-		Rotat1[1]=testKey[25]; //19
+		RotatPattern_Constant[0]=testKey[24]; //18
+		RotatPattern_Constant[1]=testKey[25]; //19
 		//Rotat1[2]='\0';
 
 		if(flag==1)
 		{
-			key[0]=identifyDefaultKey(Rotat,pair1); //UW
+			key[0]=identifyDefaultKey(RotatPattern,pair1); //UW
 			key[1]=0; // for H
-			key[2]=identifyDefaultKey(Rotat,pair2); // LA
-			key[3]=identifyDefaultKey(Rotat,pair3); //ET
+			key[2]=identifyDefaultKey(RotatPattern,pair2); // LA
+			key[3]=identifyDefaultKey(RotatPattern,pair3); //ET
 
 			
 
@@ -428,7 +428,7 @@ void verifyThePermutation7(char *a,char **KeyPer)
 				key[6]=KeyPer[k][3]-48; // for key of length 7
 				
 
-				DecyptPigPen(Rotat,Rotat1,key,Cipher,keyLen,dMessage); // move back in the key group to get the correct key
+				DecyptPigPen(RotatPattern,RotatPattern_Constant,key,Cipher,keyLen,dMessage); // move back in the key group to get the correct key
 
 				ParentScore= GetScoreForTriGram(dMessage, Total, pattern, dscore);//
 
@@ -440,14 +440,14 @@ void verifyThePermutation7(char *a,char **KeyPer)
 					setOriginalMessage(dMessage);
 
 					printf("\n Key : %d%d%d%d%d%d%d --- Score : %lf \n",key[0],key[1],key[2],key[3],key[4],key[5],key[6],score);
-					printf("\n Rotation Key %s - %s - %s - %s - %s - %s - %c - %c\n",Rotat[0],Rotat[1],Rotat[2],Rotat[3],Rotat[4],Rotat[5],Rotat1[0],Rotat1[1]);
+					printf("\n Rotation Key %s - %s - %s - %s - %s - %s - %c - %c\n",RotatPattern[0],RotatPattern[1],RotatPattern[2],RotatPattern[3],RotatPattern[4],RotatPattern[5],RotatPattern_Constant[0],RotatPattern_Constant[1]);
 					printf(" Original message %s \n" , originalMessage);
 					printf("--------------------------- \n");		
 					//text to file
 					fptxt=fopen("PigPen.txt","a+");
 					fprintf( fptxt, "%d%d%d%d%d%d%d  Score : %lf \n", key[0],key[1],key[2],key[3],key[4],key[5],key[6],score);
-					fprintf(fptxt,"%s%s%s%s%s%s",Rotat[0],Rotat[1],Rotat[2],Rotat[3],Rotat[4],Rotat[5]);
-					fprintf(fptxt,"%c%c \n",Rotat1[0],Rotat1[1]);
+					fprintf(fptxt,"%s%s%s%s%s%s",RotatPattern[0],RotatPattern[1],RotatPattern[2],RotatPattern[3],RotatPattern[4],RotatPattern[5]);
+					fprintf(fptxt,"%c%c \n",RotatPattern_Constant[0],RotatPattern_Constant[1]);
 					fprintf(fptxt," Original message %s \n" , originalMessage);
 					fprintf(fptxt,"\n--------------------------- %c",'\n');
 					fflush(stdin);
@@ -461,14 +461,14 @@ void verifyThePermutation7(char *a,char **KeyPer)
 					setOriginalMessage(dMessage);
 					
 					printf("\n Key : %d%d%d%d%d%d%d --- Score : %lf \n",key[0],key[1],key[2],key[3],key[4],key[5],key[6],score);
-					printf("\n Rotation Key %s - %s - %s - %s - %s - %s - %c - %c\n",Rotat[0],Rotat[1],Rotat[2],Rotat[3],Rotat[4],Rotat[5],Rotat1[0],Rotat1[1]);
+					printf("\n Rotation Key %s - %s - %s - %s - %s - %s - %c - %c\n",RotatPattern[0],RotatPattern[1],RotatPattern[2],RotatPattern[3],RotatPattern[4],RotatPattern[5],RotatPattern_Constant[0],RotatPattern_Constant[1]);
 					printf(" Original message %s \n" , originalMessage);
 					printf("--------------------------- \n");		
 					//text to file
 					fptxt=fopen("PigPen.txt","a+");
 					fprintf( fptxt, "%d%d%d%d%d%d%d  Score : %lf \n", key[0],key[1],key[2],key[3],key[4],key[5],key[6],score);
-					fprintf(fptxt,"%s%s%s%s%s%s",Rotat[0],Rotat[1],Rotat[2],Rotat[3],Rotat[4],Rotat[5]);
-					fprintf(fptxt,"%c%c \n",Rotat1[0],Rotat1[1]);
+					fprintf(fptxt,"%s%s%s%s%s%s",RotatPattern[0],RotatPattern[1],RotatPattern[2],RotatPattern[3],RotatPattern[4],RotatPattern[5]);
+					fprintf(fptxt,"%c%c \n",RotatPattern_Constant[0],RotatPattern_Constant[1]);
 					fprintf(fptxt," Original message %s \n" , originalMessage);
 					fprintf(fptxt,"\n--------------------------- %c",'\n');
 					fflush(stdin);
